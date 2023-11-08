@@ -6,7 +6,7 @@
 /*   By: abasdere <abasdere@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/26 14:41:54 by abasdere          #+#    #+#             */
-/*   Updated: 2023/11/08 11:55:42 by abasdere         ###   ########.fr       */
+/*   Updated: 2023/11/08 15:58:18 by abasdere         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,14 +24,17 @@
 
 typedef struct s_buf {
 	char	content[BUFFER_SIZE];
-	ssize_t	cursor;
-	ssize_t	len;
+	size_t	cursor;
+	size_t	len;
+	int		not_empty;
 }	t_buf;
 
 char	*get_next_line(int fd);
-ssize_t	find_end_line(char *content, ssize_t cursor);
-char	*strcaldupcat(char *origin, char *content, size_t s_ori, size_t s_cont);
+int		find_eol(char *content, size_t *cursor);
+char	*strcaldupcat(char *origin, size_t s_ori, t_buf buf);
 size_t	ft_strlen(char *str);
 char	*free_and_exit(char *str);
+void	fill_buffer(t_buf *buf, int fd);
+char	*fill_line(t_buf buf);
 
 #endif
