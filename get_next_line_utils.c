@@ -6,7 +6,7 @@
 /*   By: abasdere <abasdere@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/26 14:46:33 by abasdere          #+#    #+#             */
-/*   Updated: 2023/11/08 15:57:28 by abasdere         ###   ########.fr       */
+/*   Updated: 2023/11/08 18:13:50 by abasdere         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,8 @@ char	*fill_line(t_buf buf)
 	if (buf.not_empty)
 	{
 		buf.not_empty = 0;
-		line = (char *)malloc((BUFFER_SIZE - buf.cursor + 1) * sizeof(char *));
+		buf.cursor++;
+		line = (char *)calloc((BUFFER_SIZE - buf.cursor + 1), sizeof(char *));
 		if (!line)
 			return (NULL);
 		while ((++i) + buf.cursor < BUFFER_SIZE)
@@ -30,7 +31,7 @@ char	*fill_line(t_buf buf)
 	}
 	else
 	{
-		line = (char *)malloc(1 * sizeof(char *));
+		line = (char *)calloc(1, sizeof(char *));
 		if (!line)
 			return (NULL);
 		line[0] = '\0';
@@ -38,32 +39,25 @@ char	*fill_line(t_buf buf)
 	return (line);
 }
 
-void	fill_buffer(t_buf *buf, int fd)
+void	*ft_calloc(size_t nmemb, size_t size)
 {
-	if (buf->len == buf->cursor)
-		buf->cursor = 0;
-	buf->len = read(fd, buf->content, BUFFER_SIZE);
-}
+	unsigned char	*ptr;
+	size_t			i;
+	size_t			mem_size;
 
-int	find_eol(char *content, size_t *cursor)
-{
-	while (*cursor < BUFFER_SIZE)
-	{
-		if (content[*cursor] == '\n' || content[*cursor] == '\0')
-			return (1);
-		(*cursor)++;
-	}
-	return (0);
-}
-
-size_t	ft_strlen(char *str)
-{
-	size_t	i;
-
+	ptr = 0;
 	i = 0;
-	while (str[i])
-		i++;
-	return (i);
+	if (!size)
+		return (NULL);
+	mem_size = nmemb * size;
+	if (mem_size / size != nmemb)
+		return (NULL);
+	ptr = malloc(mem_size);
+	if (!ptr)
+		return (NULL);
+	while (i < mem_size)
+		ptr[i++] = 0;
+	return ((void *)ptr);
 }
 
 char	*free_and_exit(char *str)
@@ -72,21 +66,30 @@ char	*free_and_exit(char *str)
 	return (NULL);
 }
 
-char	*strcaldupcat(char *origin, size_t s_ori, t_buf buf)
+char	*strcaldupcat(char *line, t_buf buf)
 {
-	char	*new;
+	char	*new_l;
 	size_t	i;
+	size_t	s_line;
+	size_t	s_cont;
 
-	new = (char *)malloc((s_ori + buf.cursor + 1) * sizeof(char *));
-	if (!new)
-		return (NULL);
+	s_line = 0;
+	if (buf.len == BUFFER_SIZE)
+		s_cont = buf.cursor;
+	else
+		s_cont = buf.len;
+	while (line[s_line])
+		s_line++;
+	new_l = (char *)calloc((s_line + s_cont + 1), sizeof(char *));
+	if (!new_l)
+		return (free_and_exit(line));
 	i = -1;
-	while (++i < s_ori)
-		new[i] = origin[i];
+	while (++i < s_line)
+		new_l[i] = line[i];
 	i = -1;
-	while (++i < buf.cursor)
-		new[s_ori + i] = (buf.content)[i];
-	new[s_ori + i] = '\0';
-	free(origin);
-	return (new);
+	free(line);
+	while (++i < s_cont + 1)
+		new_l[s_line + i] = (buf.content)[i];
+	new_l[s_line + i] = '\0';
+	return (new_l);
 }
