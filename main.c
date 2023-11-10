@@ -6,7 +6,7 @@
 /*   By: abasdere <abasdere@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/08 08:34:37 by abasdere          #+#    #+#             */
-/*   Updated: 2023/11/08 18:24:12 by abasdere         ###   ########.fr       */
+/*   Updated: 2023/11/10 10:06:35 by abasdere         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,10 @@ int	main(int ac, char **av)
 	{
 		str = get_next_line(fd);
 		if (str)
-			printf("%d %ldc:\t%s", x++, strlen(str), str);
+		{
+			printf("%s", str);
+			x++;
+		}
 		else
 			x = 0;
 		free(str);

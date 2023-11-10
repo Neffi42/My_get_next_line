@@ -6,7 +6,7 @@
 /*   By: abasdere <abasdere@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/26 14:41:54 by abasdere          #+#    #+#             */
-/*   Updated: 2023/11/08 17:50:12 by abasdere         ###   ########.fr       */
+/*   Updated: 2023/11/10 10:18:09 by abasdere         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,11 +30,11 @@ typedef struct s_buf {
 }	t_buf;
 
 char	*get_next_line(int fd);
-int		find_eol(t_buf *buf);
-char	*strcaldupcat(char *line, t_buf buf);
+int		find_end_of_line(t_buf *buf);
+char	*ft_strdupcat(char *line, t_buf buf);
 char	*free_and_exit(char *str);
 void	fill_buffer(t_buf *buf, int fd);
-char	*fill_line(t_buf buf);
+char	*fill_line(t_buf *buf);
 void	*ft_calloc(size_t nmemb, size_t size);
 
 #endif
