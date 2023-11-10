@@ -6,7 +6,7 @@
 /*   By: abasdere <abasdere@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/26 14:46:31 by abasdere          #+#    #+#             */
-/*   Updated: 2023/11/10 10:18:59 by abasdere         ###   ########.fr       */
+/*   Updated: 2023/11/10 11:43:31 by abasdere         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,15 +22,15 @@ char	*get_next_line(int fd)
 	if (!line)
 		return (NULL);
 	fill_buffer(&buf, fd);
-	if (buf.len <= 0)
+	if (buf.len < 0)
 		return (free_and_exit(line));
-	while (!find_end_of_line(&buf))
+	while (!find_end_of_line(&buf) && buf.len)
 	{
 		line = ft_strdupcat(line, buf);
 		if (!line)
 			return (NULL);
 		fill_buffer(&buf, fd);
-		if (buf.len <= 0)
+		if (buf.len < 0)
 			return (free_and_exit(line));
 	}
 	line = ft_strdupcat(line, buf);
@@ -55,7 +55,7 @@ int	find_end_of_line(t_buf *buf)
 
 void	fill_buffer(t_buf *buf, int fd)
 {
-	if (BUFFER_SIZE == buf->cursor)
+	if (!buf->not_empty)
 		buf->cursor = 0;
 	buf->len = read(fd, buf->content, BUFFER_SIZE);
 }
