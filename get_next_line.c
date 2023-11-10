@@ -6,7 +6,7 @@
 /*   By: abasdere <abasdere@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/26 14:46:31 by abasdere          #+#    #+#             */
-/*   Updated: 2023/11/10 11:43:31 by abasdere         ###   ########.fr       */
+/*   Updated: 2023/11/10 17:20:20 by abasdere         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,19 +17,22 @@ char	*get_next_line(int fd)
 	char			*line;
 	static t_buf	buf;
 
-
-	line = fill_line(&buf);
+	line = init_line(&buf);
 	if (!line)
 		return (NULL);
-	fill_buffer(&buf, fd);
-	if (buf.len < 0)
+	read_and_process(&buf, fd);
+	// printf("\n%ld %ld\n", buf.cursor, buf.len);
+	if (buf.len <= 0 && !buf.cursor)
 		return (free_and_exit(line));
+	// if (buf.not_empty && !buf.len)
+	// 	return (line);
+	buf.not_empty = 0;
 	while (!find_end_of_line(&buf) && buf.len)
 	{
 		line = ft_strdupcat(line, buf);
 		if (!line)
 			return (NULL);
-		fill_buffer(&buf, fd);
+		read_and_process(&buf, fd);
 		if (buf.len < 0)
 			return (free_and_exit(line));
 	}
@@ -53,29 +56,27 @@ int	find_end_of_line(t_buf *buf)
 	return (1);
 }
 
-void	fill_buffer(t_buf *buf, int fd)
+void	read_and_process(t_buf *buf, int fd)
 {
 	if (!buf->not_empty)
 		buf->cursor = 0;
 	buf->len = read(fd, buf->content, BUFFER_SIZE);
 }
 
-char	*fill_line(t_buf *buf)
+char	*init_line(t_buf *buf)
 {
 	char	*line;
 	size_t	i;
 
 	if (buf->not_empty)
 	{
-		buf->not_empty = 0;
 		buf->cursor++;
-		line = (char *)ft_calloc((BUFFER_SIZE + 1 - buf->cursor), sizeof(char));
+		line = (char *)ft_calloc((buf->len + 1 - buf->cursor), sizeof(char));
 		if (!line)
 			return (NULL);
 		i = -1;
-		while ((++i) < BUFFER_SIZE - buf->cursor)
+		while ((++i) < buf->len - buf->cursor)
 			line[i] = buf->content[i + buf->cursor];
-		line[i] = '\0';
 	}
 	else
 	{
@@ -94,7 +95,7 @@ char	*ft_strdupcat(char *line, t_buf buf)
 	size_t	s_cont;
 
 	s_line = 0;
-	if (buf.len == BUFFER_SIZE)
+	if (buf.cursor != BUFFER_SIZE)
 		s_cont = buf.cursor + 1;
 	else
 		s_cont = buf.len;
