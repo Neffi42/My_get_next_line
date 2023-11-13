@@ -6,7 +6,7 @@
 /*   By: abasdere <abasdere@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/26 14:46:31 by abasdere          #+#    #+#             */
-/*   Updated: 2023/11/10 17:20:20 by abasdere         ###   ########.fr       */
+/*   Updated: 2023/11/13 09:23:51 by abasdere         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,12 +20,11 @@ char	*get_next_line(int fd)
 	line = init_line(&buf);
 	if (!line)
 		return (NULL);
+	if (buf.not_empty)
+		return (line);
 	read_and_process(&buf, fd);
-	// printf("\n%ld %ld\n", buf.cursor, buf.len);
-	if (buf.len <= 0 && !buf.cursor)
+	if (buf.len <= 0 && !(*line))
 		return (free_and_exit(line));
-	// if (buf.not_empty && !buf.len)
-	// 	return (line);
 	buf.not_empty = 0;
 	while (!find_end_of_line(&buf) && buf.len)
 	{
@@ -66,16 +65,19 @@ void	read_and_process(t_buf *buf, int fd)
 char	*init_line(t_buf *buf)
 {
 	char	*line;
+	size_t	start;
 	size_t	i;
 
 	if (buf->not_empty)
 	{
 		buf->cursor++;
-		line = (char *)ft_calloc((buf->len + 1 - buf->cursor), sizeof(char));
+		start = buf->cursor;
+		find_end_of_line(buf);
+		line = (char *)ft_calloc((buf->cursor - start + 1), sizeof(char));
 		if (!line)
 			return (NULL);
 		i = -1;
-		while ((++i) < buf->len - buf->cursor)
+		while ((++i) <= buf->cursor - start)
 			line[i] = buf->content[i + buf->cursor];
 	}
 	else
