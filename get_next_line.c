@@ -6,11 +6,18 @@
 /*   By: abasdere <abasdere@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/26 14:46:31 by abasdere          #+#    #+#             */
-/*   Updated: 2023/11/13 11:25:13 by abasdere         ###   ########.fr       */
+/*   Updated: 2023/11/13 16:06:38 by abasdere         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
+
+static void	printfBuf(t_buf buf, int cont)
+{
+	printf("ne:%d le:%ld cu:%ld\n", buf.not_empty, buf.len, buf.cursor);
+	if (cont)
+		printf("co:%s\n", buf.content);
+}
 
 char	*get_next_line(int fd)
 {
@@ -98,6 +105,7 @@ char	*ft_strdupcat(char *line, t_buf buf)
 	size_t	s_cont;
 
 	s_line = 0;
+	printfBuf(buf, 1);
 	if (buf.not_empty)
 		s_cont = buf.cursor + 1;
 	else
