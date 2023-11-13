@@ -6,7 +6,7 @@
 /*   By: abasdere <abasdere@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/08 08:34:37 by abasdere          #+#    #+#             */
-/*   Updated: 2023/11/13 08:35:57 by abasdere         ###   ########.fr       */
+/*   Updated: 2023/11/13 11:23:40 by abasdere         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,12 +29,12 @@ int	main(int ac, char **av)
 	str = get_next_line(fd);
 	while (str != NULL)
 	{
-		printf("%d:%s", x, str);
+		printf("len:%ld %d:%s", strlen(str), x, str);
 		free(str);
 		str = get_next_line(fd);
 		x++;
 	}
-	printf("%d:%s", x, str);
+	printf("len:%ld %d:%s", strlen(str), x, str);
 	free(str);
 	close(fd);
 	return (0);

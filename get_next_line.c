@@ -6,7 +6,7 @@
 /*   By: abasdere <abasdere@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/26 14:46:31 by abasdere          #+#    #+#             */
-/*   Updated: 2023/11/13 09:23:51 by abasdere         ###   ########.fr       */
+/*   Updated: 2023/11/13 11:25:13 by abasdere         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ char	*get_next_line(int fd)
 	if (buf.not_empty)
 		return (line);
 	read_and_process(&buf, fd);
-	if (buf.len <= 0 && !(*line))
+	if (buf.len <= 0)
 		return (free_and_exit(line));
 	buf.not_empty = 0;
 	while (!find_end_of_line(&buf) && buf.len)
@@ -51,7 +51,8 @@ int	find_end_of_line(t_buf *buf)
 		c = (buf->content)[++(buf->cursor)];
 	if (buf->cursor == BUFFER_SIZE)
 		return (0);
-	buf->not_empty = 1;
+	if (c != '\0')
+		buf->not_empty = 1;
 	return (1);
 }
 
@@ -73,7 +74,7 @@ char	*init_line(t_buf *buf)
 		buf->cursor++;
 		start = buf->cursor;
 		find_end_of_line(buf);
-		line = (char *)ft_calloc((buf->cursor - start + 1), sizeof(char));
+		line = (char *)ft_calloc((buf->cursor - start + 2), sizeof(char));
 		if (!line)
 			return (NULL);
 		i = -1;
@@ -97,7 +98,7 @@ char	*ft_strdupcat(char *line, t_buf buf)
 	size_t	s_cont;
 
 	s_line = 0;
-	if (buf.cursor != BUFFER_SIZE)
+	if (buf.not_empty)
 		s_cont = buf.cursor + 1;
 	else
 		s_cont = buf.len;
@@ -113,6 +114,6 @@ char	*ft_strdupcat(char *line, t_buf buf)
 	i = -1;
 	while (++i < s_cont)
 		new_l[s_line + i] = (buf.content)[i];
-	new_l[s_line + i] = '\0';
+	new_l[s_line + s_cont] = '\0';
 	return (new_l);
 }
