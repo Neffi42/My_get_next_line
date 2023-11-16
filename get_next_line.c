@@ -6,122 +6,84 @@
 /*   By: abasdere <abasdere@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/26 14:46:31 by abasdere          #+#    #+#             */
-/*   Updated: 2023/11/13 16:06:38 by abasdere         ###   ########.fr       */
+/*   Updated: 2023/11/16 15:23:01 by abasdere         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-static void	printfBuf(t_buf buf, int cont)
-{
-	printf("ne:%d le:%ld cu:%ld\n", buf.not_empty, buf.len, buf.cursor);
-	if (cont)
-		printf("co:%s\n", buf.content);
-}
-
 char	*get_next_line(int fd)
 {
-	char			*line;
-	static t_buf	buf;
+	static char	buf[BUFFER_SIZE];
+	char		*process;
+	char		*result;
 
-	line = init_line(&buf);
-	if (!line)
+	if (fd < 0)
 		return (NULL);
-	if (buf.not_empty)
-		return (line);
-	read_and_process(&buf, fd);
-	if (buf.len <= 0)
-		return (free_and_exit(line));
-	buf.not_empty = 0;
-	while (!find_end_of_line(&buf) && buf.len)
+	process = NULL;
+	result = NULL;
+	while (!is_new_line(result) && read_buffer((char **) &buf, fd) > 0)
 	{
-		line = ft_strdupcat(line, buf);
-		if (!line)
+		process = process_buffer(buf, process);
+		if (!process)
+			return (free(result), NULL);
+		result = ft_strjoin(result, process);
+		if (!result)
 			return (NULL);
-		read_and_process(&buf, fd);
-		if (buf.len < 0)
-			return (free_and_exit(line));
 	}
-	line = ft_strdupcat(line, buf);
-	if (!line)
-		return (NULL);
-	return (line);
+	return (result);
 }
 
-int	find_end_of_line(t_buf *buf)
+int	is_new_line(char *result)
 {
-	char	c;
-
-	c = (buf->content)[(buf->cursor)];
-	buf->not_empty = 0;
-	while (c != '\n' && c != '\0' && (buf->cursor) < BUFFER_SIZE)
-		c = (buf->content)[++(buf->cursor)];
-	if (buf->cursor == BUFFER_SIZE)
+	if (!result)
 		return (0);
-	if (c != '\0')
-		buf->not_empty = 1;
-	return (1);
+	if (result[ft_strlen(result) - 1] == '\n')
+		return (1);
+	return (0);
 }
 
-void	read_and_process(t_buf *buf, int fd)
+ssize_t	read_buffer(char **buf, int fd)
 {
-	if (!buf->not_empty)
-		buf->cursor = 0;
-	buf->len = read(fd, buf->content, BUFFER_SIZE);
+	if (*buf)
+		return (1);
+	if (read(fd, buf, BUFFER_SIZE) > 0)
+		return (1);
+	return (0);
 }
 
-char	*init_line(t_buf *buf)
+char	*process_buffer(char *buf, char *process)
 {
-	char	*line;
-	size_t	start;
+	size_t	i;
+	size_t	len;
+
+	len = find_new_line(buf);
+	process = malloc(len + 1 * sizeof(char));
+	if (!process)
+		return (NULL);
+	i = -1;
+	while (++i < len)
+		process[i] = buf[i];
+	process[i] = '\0';
+	i = -1;
+	while (++i < BUFFER_SIZE)
+	{
+		if (len + i < BUFFER_SIZE)
+			buf[i] = buf[len + i];
+		else
+			buf[i] = '\0';
+	}
+	return (process);
+}
+
+size_t	find_new_line(char *buf)
+{
 	size_t	i;
 
-	if (buf->not_empty)
-	{
-		buf->cursor++;
-		start = buf->cursor;
-		find_end_of_line(buf);
-		line = (char *)ft_calloc((buf->cursor - start + 2), sizeof(char));
-		if (!line)
-			return (NULL);
-		i = -1;
-		while ((++i) <= buf->cursor - start)
-			line[i] = buf->content[i + buf->cursor];
-	}
-	else
-	{
-		line = (char *)ft_calloc(1, sizeof(char));
-		if (!line)
-			return (NULL);
-	}
-	return (line);
-}
-
-char	*ft_strdupcat(char *line, t_buf buf)
-{
-	char	*new_l;
-	size_t	i;
-	size_t	s_line;
-	size_t	s_cont;
-
-	s_line = 0;
-	printfBuf(buf, 1);
-	if (buf.not_empty)
-		s_cont = buf.cursor + 1;
-	else
-		s_cont = buf.len;
-	while (line[s_line])
-		s_line++;
-	new_l = (char *)ft_calloc((s_line + s_cont + 1), sizeof(char));
-	if (!new_l)
-		return (free_and_exit(line));
-	i = -1;
-	while (++i < s_line)
-		new_l[i] = line[i];
-	free(line);
-	i = -1;
-	while (++i < s_cont)
-		new_l[s_line + i] = (buf.content)[i];
-	new_l[s_line + s_cont] = '\0';
-	return (new_l);
+	i = 0;
+	while (buf[i] && buf[i] != '\n')
+		i++;
+	if (buf[i] == '\n')
+		return (i + 1);
+	return (i);
 }

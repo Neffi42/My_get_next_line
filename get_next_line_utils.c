@@ -6,33 +6,44 @@
 /*   By: abasdere <abasdere@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/26 14:46:33 by abasdere          #+#    #+#             */
-/*   Updated: 2023/11/13 16:01:39 by abasdere         ###   ########.fr       */
+/*   Updated: 2023/11/16 14:51:22 by abasdere         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-void	*ft_calloc(size_t nmemb, size_t size)
+size_t	ft_strlen(char *s)
 {
-	unsigned char	*ptr;
-	int				mem_size;
-	int				i;
+	size_t	i;
 
-	ptr = 0;
 	i = 0;
-	mem_size = nmemb * size;
-	if (size && mem_size / size != nmemb)
-		return (NULL);
-	ptr = malloc(mem_size);
-	if (!ptr)
-		return (NULL);
-	while (i < mem_size)
-		ptr[i++] = 0;
-	return ((void *)ptr);
+	if (!s)
+		return (i);
+	while (s[i])
+		i++;
+	return (i);
 }
 
-char	*free_and_exit(char *str)
+char	*ft_strjoin(char *result, char *process)
 {
-	free(str);
-	return (NULL);
+	size_t	i;
+	size_t	size_r;
+	size_t	size_b;
+	char	*join;
+
+	size_r = 0;
+	if (result)
+		size_r = ft_strlen(result);
+	size_b = ft_strlen(process);
+	join = malloc((size_r + size_b + 1) * sizeof(char));
+	if (!join)
+		return (free(result), free(process), NULL);
+	i = -1;
+	while (++i < size_r)
+		join[i] = result[i];
+	i = -1;
+	while (++i < size_b)
+		join[i + size_r] = process[i];
+	join[i + size_r] = '\0';
+	return (free(result), free(process), join);
 }
